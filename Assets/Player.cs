@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -11,6 +10,8 @@ public class Player : MonoBehaviour
     [SerializeField] private float jumpForce = 8;
     private float xInput;
     private bool facingRight = true;
+    private bool canMove = true;
+    private bool canJump = true;
 
 
     [Header("Collision details")]
@@ -34,6 +35,12 @@ public class Player : MonoBehaviour
         HandleFlip();
     }
 
+    public void EnableMovementAndJump(bool enable)
+    {
+        canMove = enable;
+        canJump = enable;
+    }
+
     private void HandleAnimations()
     {
         anim.SetBool("IsGrounded", isGrounded);
@@ -46,19 +53,34 @@ public class Player : MonoBehaviour
         xInput = Input.GetAxisRaw("Horizontal");
 
         if (Input.GetKeyDown(KeyCode.Space))
-            Jump();
-        
+            TryToJump();
+
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+            TryToAttack();
+    }
+
+    private void TryToAttack()
+    {
+        if (isGrounded)
+        {
+            anim.SetTrigger("attack");
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+        }
+    }
+
+    private void TryToJump()
+    {
+        if (isGrounded && canJump)
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
     }
 
     private void HandleMovement()
     {
-        rb.linearVelocity = new Vector2(xInput * moveSpeed, rb.linearVelocity.y);
-    }
+        if (canMove)
+            rb.linearVelocity = new Vector2(xInput * moveSpeed, rb.linearVelocity.y);
+        else
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
 
-    private void Jump()
-    {
-        if (isGrounded)
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
     }
 
     private void HandleCollision()
@@ -68,9 +90,9 @@ public class Player : MonoBehaviour
 
     private void HandleFlip()
     {
-        if (rb.linearVelocity.x>0 && facingRight==false)
+        if (rb.linearVelocity.x > 0 && facingRight == false)
             Flip();
-        else if (rb.linearVelocity.x<0 && facingRight == true)
+        else if (rb.linearVelocity.x < 0 && facingRight == true)
             Flip();
     }
     private void Flip()
