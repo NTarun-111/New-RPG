@@ -5,6 +5,12 @@ public class Player : MonoBehaviour
     private Animator anim;
     private Rigidbody2D rb;
 
+    public Collider2D[] enemyColliders;
+    [Header("Attack details")]
+    [SerializeField] private float attackRadius;
+    [SerializeField] private Transform attackPoint;
+    [SerializeField] private LayerMask whatIsEnemy;
+
     [Header("Movement details")]
     [SerializeField] private float moveSpeed = 3.5f;
     [SerializeField] private float jumpForce = 8;
@@ -33,6 +39,11 @@ public class Player : MonoBehaviour
         HandleMovement();
         HandleAnimations();
         HandleFlip();
+    }
+
+    public void DamageEnemies()
+    {
+        enemyColliders = Physics2D.OverlapCircleAll(attackPoint.position, attackRadius, whatIsEnemy);
     }
 
     public void EnableMovementAndJump(bool enable)
